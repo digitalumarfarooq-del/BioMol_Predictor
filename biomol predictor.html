@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioMol Predictor - Research Gap Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .research-gap {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 12px;
+            border-left: 3px solid #ffd700;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 18px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .examples {
+            background: #f5f7ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+        
+        .prediction-card {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            border: 1px solid #e0e6ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .prediction-card h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prediction-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .score {
+            display: inline-block;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .score.high {
+            color: #10b981;
+            border-left: 3px solid #10b981;
+        }
+        
+        .score.medium {
+            color: #f59e0b;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .score.low {
+            color: #ef4444;
+            border-left: 3px solid #ef4444;
+        }
+        
+        .applications {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .app-tag {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .app-tag strong {
+            color: #667eea;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+            margin-top: 15px;
+        }
+        
+        .footer-note {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 BioMol Predictor</h1>
+            <p>AI-Powered Multi-Target Molecular Screening</p>
+            <div class="research-gap">
+                <strong>🎯 Research Gap Addressed:</strong> Unified prediction of pharmaceutical AND environmental applications with toxicity assessment
+                <br><strong style="margin-top: 8px; display: block;">Created by Umar</strong> Undergraduate Chemistry Student | AI in Chemistry Researcher
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">📝</span>
+                    Molecular Input
+                </div>
+                
+                <div class="input-group">
+                    <label>SMILES Notation (Simplified Molecular Input Line Entry System)</label>
+                    <input 
+                        type="text" 
+                        id="smilesInput" 
+                        placeholder="Enter SMILES string (e.g., CC(=O)Oc1ccccc1C(=O)O for Aspirin)"
+                    >
+                    <div class="examples">
+                        <strong>Examples:</strong> Aspirin (CC(=O)Oc1ccccc1C(=O)O) • Caffeine (CN1C=NC2=C1C(=O)N(C(=O)N2C)C) • Paracetamol (CC(=O)Nc1ccc(O)cc1)
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Target Therapeutic Area</label>
+                    <select id="targetArea">
+                        <option value="bacterial">Antibacterial Agent</option>
+                        <option value="antiviral">Antiviral Agent</option>
+                        <option value="cancer">Anticancer Agent</option>
+                        <option value="inflammation">Anti-inflammatory</option>
+                        <option value="environmental">Environmental Remediation</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Environmental Application (Optional)</label>
+                    <select id="envApp">
+                        <option value="none">None</option>
+                        <option value="heavy-metal">Heavy Metal Removal</option>
+                        <option value="pesticide">Pesticide Degradation</option>
+                        <option value="water">Water Purification</option>
+                        <option value="air">Air Pollutant Removal</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" id="predictBtn" onclick="predictMolecule()">
+                        🔬 Generate Predictions
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resultsContainer"></div>
+            
+            <div class="footer-note">
+                <strong>⚠️ Research Note:</strong> This tool is for educational and research purposes. All predictions are AI-generated hypotheses based on molecular properties and should be validated through experimental research. Predictions combine multiple computational approaches (ADMET modeling, toxicity assessment, synthesizability evaluation) not typically unified in existing market tools.
+                <br><br>
+                <strong>📌 Tool Creator:</strong> Umar | Undergraduate Chemistry Student | AI in Chemistry Researcher
+                <br><strong>Powered by:</strong> Claude AI (Anthropic)
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function predictMolecule() {
+            const smiles = document.getElementById('smilesInput').value.trim();
+            const targetArea = document.getElementById('targetArea').value;
+            const envApp = document.getElementById('envApp').value;
+            
+            if (!smiles) {
+                showError('Please enter a SMILES string');
+                return;
+            }
+            
+            if (smiles.length < 3) {
+                showError('SMILES string appears too short. Please verify your input.');
+                return;
+            }
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing molecular properties...</p></div>';
+            
+            try {
+                const prompt = `You are an expert computational chemistry AI. Analyze this molecule for drug discovery and environmental applications.
+
+MOLECULE SMILES: ${smiles}
+TARGET AREA: ${targetArea}
+ENVIRONMENTAL APPLICATION: ${envApp}
+
+Provide predictions ONLY in this exact JSON format:
+{
+  "drugLikeness": {
+    "score": 0-100,
+    "assessment": "brief explanation"
+  },
+  "toxicity": {
+    "score": 0-100,
+    "assessment": "brief explanation"
+  },
+  "bioavailability": {
+    "score": 0-100,
+    "assessment": "brief explanation"
+  },
+  "synthesizability": {
+    "score": 0-100,
+    "assessment": "brief explanation"
+  },
+  "targetActivity": {
+    "score": 0-100,
+    "assessment": "why this molecule fits the ${targetArea} target"
+  },
+  "environmentalPotential": {
+    "score": 0-100,
+    "assessment": "potential for ${envApp} application"
+  },
+  "overallRecommendation": "summary of why this molecule is promising or not"
+}`;
+
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-6',
+                        max_tokens: 1000,
+                        messages: [
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(`API Error: ${data.error.message}`);
+                    return;
+                }
+                
+                const responseText = data.content[0].text;
+                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                
+                if (!jsonMatch) {
+                    showError('Failed to parse predictions. Please try again.');
+                    return;
+                }
+                
+                const predictions = JSON.parse(jsonMatch[0]);
+                displayResults(predictions, smiles);
+                
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            }
+        }
+        
+        function displayResults(predictions, smiles) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            const getScoreClass = (score) => {
+                if (score >= 70) return 'high';
+                if (score >= 50) return 'medium';
+                return 'low';
+            };
+            
+            let html = '<div class="results"><div class="section-title"><span class="icon">📊</span>Molecular Prediction Results</div>';
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">🧪</span>Drug-Likeness<span class="score ${getScoreClass(predictions.drugLikeness.score)}">${predictions.drugLikeness.score}%</span></h3>
+                <div class="prediction-content">${predictions.drugLikeness.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">⚠️</span>Toxicity Risk<span class="score ${getScoreClass(100 - predictions.toxicity.score)}">${100 - predictions.toxicity.score}%</span></h3>
+                <div class="prediction-content">${predictions.toxicity.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">🫀</span>Bioavailability<span class="score ${getScoreClass(predictions.bioavailability.score)}">${predictions.bioavailability.score}%</span></h3>
+                <div class="prediction-content">${predictions.bioavailability.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">🔧</span>Synthesizability<span class="score ${getScoreClass(predictions.synthesizability.score)}">${predictions.synthesizability.score}%</span></h3>
+                <div class="prediction-content">${predictions.synthesizability.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">🎯</span>Target Activity Match<span class="score ${getScoreClass(predictions.targetActivity.score)}">${predictions.targetActivity.score}%</span></h3>
+                <div class="prediction-content">${predictions.targetActivity.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card">
+                <h3><span class="icon">🌍</span>Environmental Potential<span class="score ${getScoreClass(predictions.environmentalPotential.score)}">${predictions.environmentalPotential.score}%</span></h3>
+                <div class="prediction-content">${predictions.environmentalPotential.assessment}</div>
+            </div>`;
+            
+            html += `<div class="prediction-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac;">
+                <h3 style="color: #059669;">✨ Recommendation</h3>
+                <div class="prediction-content">${predictions.overallRecommendation}</div>
+                <div class="applications">
+                    <div class="app-tag"><strong>Molecule:</strong> ${smiles}</div>
+                    <div class="app-tag"><strong>Status:</strong> Research-Grade Analysis</div>
+                </div>
+            </div>`;
+            
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+        
+        function showError(message) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `<div class="error">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
